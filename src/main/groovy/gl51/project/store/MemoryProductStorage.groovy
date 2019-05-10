@@ -1,36 +1,49 @@
 package gl51.project.store
-
-
 class MemoryProductStorage implements  ProductStorage {
-	private Map<String, Product> productmap = [:]
+	private List<Product> productlist = []
+	private int id_total = 1
+	@Override
+    int save(Product p) {
+		p.id = id_total
+        productlist.add(p)
+		id_total += 1
+    	return p.id
+    }
+ 
+	
     @Override
-    void save(Product p) {
-		productmap[p.name] = p
+    void update(int id, Product p) {
+		for(e in productlist){
+			if(e.id == id){
+				e.name = p.name
+				e.description = p.description
+				e.price = p.price
+				e.idealTemperature = p.idealTemperature
+			}
+		}
     }
 
     @Override
-    void update(String id, Product p) {
-
+    Product getByID(int id) {
+		def product = productlist.find { it.id == id }
+        if(product == null)
+        {
+          throw new NotExistingProductException("The wanted product has not been found!")
+        }
+        return product
     }
 
     @Override
-    Product getByID(String id) {
-        return null
-    }
-
-    @Override
-    void delete(String id) {
-
+    void delete(int id) {
+		def product = getByID(id)
+		if (product != null){
+			productlist.remove(product)
+		}
     }
 
     @Override
     List<Product> all() {
-		List<Product> list_result = []
-		for (e in productmap) {
-			list_result.add(e.value)
-			
-		}
-		print(productmap.size())
-		return list_result
+		return productlist
     }
+    
 }
